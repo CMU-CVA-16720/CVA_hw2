@@ -61,8 +61,8 @@ def computeH_norm(x1, x2):
     T2[0,0] = k2
     T2[1,1] = k2
     T2[2,2] = 1
-    T2[0,2] = -tx2
-    T2[1,2] = -ty2
+    T2[0,2] = -tx2*k2
+    T2[1,2] = -ty2*k2
     x2_homo = np.ones((x2.shape[0],3))
     x2_homo[:,0:2] = x2
     x2_norm = np.zeros((x2.shape[0],2))
@@ -111,3 +111,11 @@ def compositeH(H2to1, template, img):
     return composite_img
 
 
+
+v = np.zeros((4,2))
+v[0,:] = [0,0]
+v[1,:] = [0,1]
+v[2,:] = [1,0]
+v[3,:] = [1,1]
+print("Hnorm:\n" + str(computeH_norm(v,v)))
+print("H:\n" + str(computeH(v,v)))
