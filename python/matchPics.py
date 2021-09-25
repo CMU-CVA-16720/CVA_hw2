@@ -26,5 +26,6 @@ def matchPics(I1, I2, opts):
 
     #Match features using the descriptors
     matches = briefMatch(desc1, desc2, ratio)
+    print("# of matches: {}".format(matches.shape[0]))
 
     return matches, locs1, locs2
