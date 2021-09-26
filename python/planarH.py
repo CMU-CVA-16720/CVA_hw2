@@ -82,10 +82,10 @@ def computeH_norm(x1, x2):
 def computeH_ransac(locs1, locs2, opts):
     #Q2.2.3
     #Compute the best fitting homography given a list of matching points
-    # max_iters = opts.max_iters  # the number of iterations to run RANSAC for
-    # inlier_tol = opts.inlier_tol # the tolerance value for considering a point to be an inlier
-    max_iters = 500
-    inlier_tol = 2
+    max_iters = opts.max_iters  # the number of iterations to run RANSAC for
+    inlier_tol = opts.inlier_tol # the tolerance value for considering a point to be an inlier
+#    max_iters = 500
+#    inlier_tol = 2
 
     bestH2to1 = np.zeros((3,3))
     inliers = 0
@@ -219,8 +219,8 @@ H = computeH(u,v)
 print("Hnorm:\n" + str(Hnorm/np.max(Hnorm)))
 print("H:\n" + str(H/np.max(H)))
 ############################################################
-print("\nRANSAC Test")
-v = np.random.randint(0,100,[50,2])
-u = v + np.random.normal(0, 0.1, v.shape)
-H,i = computeH_ransac(u, v, 0)
-print("H ({}):\n{}".format(i,H/np.max(H)))
+# print("\nRANSAC Test")
+# v = np.random.randint(0,100,[50,2])
+# u = v + np.random.normal(0, 0.1, v.shape)
+# H,i = computeH_ransac(u, v, 0)
+# print("H ({}):\n{}".format(i,H/np.max(H)))
