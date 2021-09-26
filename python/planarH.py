@@ -8,11 +8,13 @@ def computeH(x1, x2):
 
     # Constructing A:
     # For points (xi,yi) and (ui,vi)
-    # [xi, yi, i, 0, 0, 0, -xi*ui, -yi*ui, -ui] = 0
-    # [0, 0, 0, xi, yi, i, -xi*vi, -yi*vi, -vi] = 0
+    # [xi, yi, 1, 0, 0, 0, -xi*ui, -yi*ui, -ui] = 0
+    # [0, 0, 0, xi, yi, 1, -xi*vi, -yi*vi, -vi] = 0
     # Repeat for all i
     # x2 constains (x,y) and x1 contains (u,v)
     A = np.zeros((x1.shape[0]*2,9))
+#    print(x1)
+#    print(x2)
     for i in range(0, x1.shape[0]):
         A[2*i,:] = [x2[i,0], x2[i,1], 1, 0, 0, 0, -x2[i,0]*x1[i,0], -x2[i,1]*x1[i,0], -x1[i,0]]
         A[2*i+1,:] = [0, 0, 0, x2[i,0], x2[i,1], 1, -x2[i,0]*x1[i,1], -x2[i,1]*x1[i,1], -x1[i,1]]
@@ -82,9 +84,31 @@ def computeH_ransac(locs1, locs2, opts):
     #Compute the best fitting homography given a list of matching points
     max_iters = opts.max_iters  # the number of iterations to run RANSAC for
     inlier_tol = opts.inlier_tol # the tolerance value for considering a point to be an inlier
+    # max_iters = 10
+    # inlier_tol = 0.1
 
-    
-
+    bestH2to1 = np.zeros((3,3))
+    inliers = 0
+    new_coord_homo = np.zeros((locs1.shape[0],3))
+    new_coord = np.zeros((locs1.shape[0],2))
+    dist = np.zeros((locs1.shape[0]))
+    for i in range(0,max_iters):
+        # Randomly pick 4 points
+        sample_rows = np.random.choice(locs1.shape[0],4,replace=False)
+        # Compute H
+        curH = computeH_norm(locs1[sample_rows,:],locs2[sample_rows,:])
+        # Compute new output coordinates
+        for j in range(0,locs1.shape[0]):
+            new_coord_homo[j,:] = curH @ np.append(locs1[j,:],1)
+            new_coord[j,:] = (new_coord_homo[j,:]/new_coord_homo[j,-1])[0:2]
+        # Compute distance / error
+        dist = np.linalg.norm(locs2-new_coord,axis=1)
+        # Get number of inliers
+        cur_inliers = np.count_nonzero(dist<inlier_tol)
+        # update as necessary
+        if(inliers < cur_inliers):
+            inliers = cur_inliers
+            bestH2to1 = curH
 
     return bestH2to1, inliers
 
@@ -112,10 +136,28 @@ def compositeH(H2to1, template, img):
 
 
 
-v = np.zeros((4,2))
-v[0,:] = [0,0]
-v[1,:] = [0,1]
-v[2,:] = [1,0]
-v[3,:] = [1,1]
-print("Hnorm:\n" + str(computeH_norm(v,v)))
-print("H:\n" + str(computeH(v,v)))
+# v = np.zeros((4,2))
+# v[0,:] = [0,0]
+# v[1,:] = [0,1]
+# v[2,:] = [1,0]
+# v[3,:] = [1,1]
+# print("Hnorm:\n" + str(computeH_norm(v,v)))
+# H = computeH(v,v)
+# print("H:\n" + str(H))
+
+# x = np.array([3,1,1])
+# y = H @ x
+# print(x)
+# print(y)
+
+# v = np.zeros((8,2))
+# v[0,:] = [0,0]
+# v[1,:] = [0,1]
+# v[2,:] = [1,0]
+# v[3,:] = [1,1]
+# v[4,:] = [2,0]
+# v[5,:] = [2,1]
+# v[6,:] = [0,2]
+# v[7,:] = [1,2]
+# u = v + np.random.normal(0,0.1,v.shape)
+# computeH_ransac(u,v,0)
