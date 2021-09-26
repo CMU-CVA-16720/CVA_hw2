@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 
+from opts import get_opts
 
 def computeH(x1, x2):
     #Q2.2.1
@@ -99,10 +100,10 @@ def computeH_ransac(locs1, locs2, opts):
         curH = computeH_norm(locs1[sample_rows,:],locs2[sample_rows,:])
         # Compute new output coordinates
         for j in range(0,locs1.shape[0]):
-            new_coord_homo[j,:] = curH @ np.append(locs1[j,:],1)
+            new_coord_homo[j,:] = curH @ np.append(locs2[j,:],1)
             new_coord[j,:] = (new_coord_homo[j,:]/new_coord_homo[j,-1])[0:2]
         # Compute distance / error
-        dist = np.linalg.norm(locs2-new_coord,axis=1)
+        dist = np.linalg.norm(locs1-new_coord,axis=1)
         # Get number of inliers
         cur_inliers = np.count_nonzero(dist<inlier_tol)
         # update as necessary
@@ -135,92 +136,119 @@ def compositeH(H2to1, template, img):
     return composite_img
 
 
-
-# v = np.zeros((4,2))
-# u = np.zeros((4,2))
-# ############################################################
-# print("Identity test")
-# v[0,:] = [0,0]
-# v[1,:] = [0,1]
-# v[2,:] = [1,0]
-# v[3,:] = [1,1]
-# Hnorm = computeH_norm(v,v)
-# H = computeH(v,v)
-# print("Hnorm:\n" + str(Hnorm/np.max(Hnorm)))
-# print("H:\n" + str(H/np.max(H)))
-# ############################################################
-# print("\nScale test")
-# v[0,:] = [0,0]
-# v[1,:] = [0,1]
-# v[2,:] = [1,0]
-# v[3,:] = [1,1]
-# u[0,:] = [0,0]
-# u[1,:] = [0,2]
-# u[2,:] = [2,0]
-# u[3,:] = [2,2]
-# Hnorm = computeH_norm(u,v)
-# H = computeH(u,v)
-# print("Hnorm:\n" + str(Hnorm/np.max(Hnorm)))
-# print("H:\n" + str(H/np.max(H)))
-# ############################################################
-# print("\nSkew test")
-# v[0,:] = [0,0]
-# v[1,:] = [0,1]
-# v[2,:] = [1,0]
-# v[3,:] = [1,1]
-# u[0,:] = [0,0]
-# u[1,:] = [0,1]
-# u[2,:] = [1,1]
-# u[3,:] = [1,2]
-# Hnorm = computeH_norm(u,v)
-# H = computeH(u,v)
-# print("Hnorm:\n" + str(Hnorm/np.max(Hnorm)))
-# print("H:\n" + str(H/np.max(H)))
-# ############################################################
-# print("\nTranspose test")
-# v[0,:] = [0,0]
-# v[1,:] = [0,1]
-# v[2,:] = [1,0]
-# v[3,:] = [1,1]
-# u[0,:] = [0,0]
-# u[1,:] = [1,0]
-# u[2,:] = [0,1]
-# u[3,:] = [1,1]
-# Hnorm = computeH_norm(u,v)
-# H = computeH(u,v)
-# print("Hnorm:\n" + str(Hnorm/np.max(Hnorm)))
-# print("H:\n" + str(H/np.max(H)))
-# ############################################################
-# print("\nRotation test")
-# v[0,:] = [0,0]
-# v[1,:] = [0,300]
-# v[2,:] = [200,300]
-# v[3,:] = [200,0]
-# u[0,:] = [0,200]
-# u[1,:] = [300,200]
-# u[2,:] = [300,0]
-# u[3,:] = [0,0]
-# Hnorm = computeH_norm(u,v)
-# H = computeH(u,v)
-# print("Hnorm:\n" + str(Hnorm/np.max(Hnorm)))
-# print("H:\n" + str(H/np.max(H)))
-# ############################################################
-# print("\nSkew test 2")
-# v[0,:] = [0,0]
-# v[1,:] = [0,1]
-# v[2,:] = [1,0]
-# v[3,:] = [1,1]
-# u[0,:] = [0,0]
-# u[1,:] = [0.5,1]
-# u[2,:] = [1,0.5]
-# u[3,:] = [1.5,1.5]
-# Hnorm = computeH_norm(u,v)
-# H = computeH(u,v)
-# print("Hnorm:\n" + str(Hnorm/np.max(Hnorm)))
-# print("H:\n" + str(H/np.max(H)))
-# ############################################################
-# print("\nRANSAC Test")
-# v = np.random.randint(0,100,[50,2])
-# u = v + np.random.normal(0, 0.1, v.shape)
-# H,i = computeH_ransac(u, v, 0)
-# print("H ({}):\n{}".format(i,H/np.max(H)))
+if __name__ == "__main__":
+    opts = get_opts()
+    v = np.zeros((4,2))
+    u = np.zeros((4,2))
+    ############################################################
+    print("Identity test")
+    v[0,:] = [0,0]
+    v[1,:] = [0,1]
+    v[2,:] = [1,0]
+    v[3,:] = [1,1]
+    Hnorm = computeH_norm(v,v)
+    H = computeH(v,v)
+    HR,i = computeH_ransac(v, v, opts)
+    print("Hnorm:\n" + str(Hnorm/np.max(Hnorm)))
+    print("H:\n" + str(H/np.max(H)))
+    print("H ({}):\n{}".format(i,HR/np.max(HR)))
+    ############################################################
+    print("\nScale test")
+    v[0,:] = [0,0]
+    v[1,:] = [0,1]
+    v[2,:] = [1,0]
+    v[3,:] = [1,1]
+    u[0,:] = [0,0]
+    u[1,:] = [0,2]
+    u[2,:] = [2,0]
+    u[3,:] = [2,2]
+    Hnorm = computeH_norm(u,v)
+    H = computeH(u,v)
+    HR,i = computeH_ransac(u, v, opts)
+    print("Hnorm:\n" + str(Hnorm/np.max(Hnorm)))
+    print("H:\n" + str(H/np.max(H)))
+    print("H ({}):\n{}".format(i,HR/np.max(HR)))
+    ############################################################
+    print("\nSkew test")
+    v[0,:] = [0,0]
+    v[1,:] = [0,1]
+    v[2,:] = [1,0]
+    v[3,:] = [1,1]
+    u[0,:] = [0,0]
+    u[1,:] = [0,1]
+    u[2,:] = [1,1]
+    u[3,:] = [1,2]
+    Hnorm = computeH_norm(u,v)
+    H = computeH(u,v)
+    HR,i = computeH_ransac(u, v, opts)
+    print("Hnorm:\n" + str(Hnorm/np.max(Hnorm)))
+    print("H:\n" + str(H/np.max(H)))
+    print("H ({}):\n{}".format(i,HR/np.max(HR)))
+    ############################################################
+    print("\nTranspose test")
+    v[0,:] = [0,0]
+    v[1,:] = [0,1]
+    v[2,:] = [1,0]
+    v[3,:] = [1,1]
+    u[0,:] = [0,0]
+    u[1,:] = [1,0]
+    u[2,:] = [0,1]
+    u[3,:] = [1,1]
+    Hnorm = computeH_norm(u,v)
+    H = computeH(u,v)
+    HR,i = computeH_ransac(u, v, opts)
+    print("Hnorm:\n" + str(Hnorm/np.max(Hnorm)))
+    print("H:\n" + str(H/np.max(H)))
+    print("H ({}):\n{}".format(i,HR/np.max(HR)))
+    ############################################################
+    print("\nRotation test")
+    v[0,:] = [0,0]
+    v[1,:] = [0,300]
+    v[2,:] = [200,300]
+    v[3,:] = [200,0]
+    u[0,:] = [0,200]
+    u[1,:] = [300,200]
+    u[2,:] = [300,0]
+    u[3,:] = [0,0]
+    Hnorm = computeH_norm(u,v)
+    H = computeH(u,v)
+    HR,i = computeH_ransac(u, v, opts)
+    print("Hnorm:\n" + str(Hnorm/np.max(Hnorm)))
+    print("H:\n" + str(H/np.max(H)))
+    print("H ({}):\n{}".format(i,HR/np.max(HR)))
+    ############################################################
+    print("\nSkew test 2")
+    v[0,:] = [0,0]
+    v[1,:] = [0,1]
+    v[2,:] = [1,0]
+    v[3,:] = [1,1]
+    u[0,:] = [0,0]
+    u[1,:] = [0.5,1]
+    u[2,:] = [1,0.5]
+    u[3,:] = [1.5,1.5]
+    Hnorm = computeH_norm(u,v)
+    H = computeH(u,v)
+    HR,i = computeH_ransac(u, v, opts)
+    print("Hnorm:\n" + str(Hnorm/np.max(Hnorm)))
+    print("H:\n" + str(H/np.max(H)))
+    print("H ({}):\n{}".format(i,HR/np.max(HR)))
+    ############################################################
+    print("\nRANSAC Test")
+    v = np.random.randint(0,100,[50,2])
+    u = v + np.random.normal(0, 0.01, v.shape)
+    H,i = computeH_ransac(u, v, opts)
+    print("H ({}):\n{}".format(i,H/np.max(H)))
+    ############################################################
+    print("\nManual test")
+    v[0,:] = [0,0]
+    v[1,:] = [90,0]
+    v[2,:] = [90,110]
+    v[3,:] = [0,110]
+    u[0,:] = [62,49]
+    u[1,:] = [124,47]
+    u[2,:] = [145,120]
+    u[3,:] = [38,122]
+    Hnorm = computeH_norm(u,v)
+    H = computeH(u,v)
+    print("Hnorm:\n" + str(Hnorm/np.max(Hnorm)))
+    print("H:\n" + str(H/np.max(H)))
