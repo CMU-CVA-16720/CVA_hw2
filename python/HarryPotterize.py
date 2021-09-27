@@ -19,11 +19,12 @@ opts = get_opts()
 cv_cover = cv2.imread('../data/cv_cover.jpg')
 cv_desk = cv2.imread('../data/cv_desk.png')
 hp_cover = cv2.imread('../data/hp_cover.jpg')
+hp_cover = cv2.resize(hp_cover, dsize=(cv_cover.shape[1],cv_cover.shape[0]),interpolation=cv2.INTER_CUBIC)
 # cv_cover = cv_cover[::4,::4,:]
 # cv_desk = cv_desk[::4,::4,:]
 # hp_cover = hp_cover[::4,::4,:]
-plt.imshow(cv_desk)
-plt.show()
+# plt.imshow(cv_desk)
+# plt.show()
 
 # Match cv cover and cv desk
 # matches, locs1, locs2 = matchPics.matchPics(cv_cover, cv_desk, opts)
@@ -36,7 +37,7 @@ default_match = np.load('default_match.npz')
 locs1=default_match['locs1']
 locs2=default_match['locs2']
 matches=default_match['matches']
-#plotMatches(cv_cover, cv_desk, matches, locs1, locs2)
+# plotMatches(cv_cover, cv_desk, matches, locs1, locs2)
 
 # convert (row,col) to (x,y)
 xy1 = np.zeros(locs1.shape)
@@ -47,21 +48,11 @@ xy2[:,0] = locs2[:,1]
 xy2[:,1] = locs2[:,0]
 
 # Use matching locs1 and locs2 to compute H
-H, inliers = planarH.computeH_ransac(xy2[matches[:,1]], xy1[matches[:,0]], opts)
+H, inliers = planarH.computeH_ransac(xy1[matches[:,0]],xy2[matches[:,1]], opts)
 print("H ({}):\n{}".format(inliers,H/np.max(H)))
 
 # Use H to transform hp cover, with same output size as cv desk
-    # H = np.array([[-1.85585438e+00,  1.00000000e+00, -1.70945158e+02],
-    #  [ 7.77723162e-02, -5.50583782e-01, -1.35101819e+02],
-    #  [ 3.51098940e-04,  1.04850911e-02, -2.75717997e+00]])
-new_hp_cover = cv2.warpPerspective(cv_cover, H, (cv_desk.shape[1],cv_desk.shape[0]))
-# new_hp_cover = np.zeros(cv_desk.shape)
-# for row in range(0,hp_cover.shape[0]):
-#     for col in range(0,hp_cover.shape[1]):
-#         new_coord = (H @ np.array([col, row, 1]))
-#         new_coord = (new_coord/new_coord[-1]).astype('int')
-#         if((new_coord[0] > 0) and (new_coord[0] < new_hp_cover.shape[1]) and (new_coord[1] > 0) and (new_coord[1] < new_hp_cover.shape[0])):
-#             new_hp_cover[new_coord[1],new_coord[0],:] = hp_cover[row,col,:]
-plt.imshow(new_hp_cover)
+composite = planarH.compositeH(H, hp_cover, cv_desk)
+plt.imshow(composite)
 plt.show()
 
