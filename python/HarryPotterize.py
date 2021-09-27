@@ -19,7 +19,6 @@ opts = get_opts()
 cv_cover = cv2.imread('../data/cv_cover.jpg')
 cv_desk = cv2.imread('../data/cv_desk.png')
 hp_cover = cv2.imread('../data/hp_cover.jpg')
-hp_cover = cv2.resize(hp_cover, dsize=(cv_cover.shape[1],cv_cover.shape[0]),interpolation=cv2.INTER_CUBIC)
 # cv_cover = cv_cover[::4,::4,:]
 # cv_desk = cv_desk[::4,::4,:]
 # hp_cover = hp_cover[::4,::4,:]
@@ -39,10 +38,10 @@ locs2=default_match['locs2']
 matches=default_match['matches']
 # plotMatches(cv_cover, cv_desk, matches, locs1, locs2)
 
-# convert (row,col) to (x,y)
+# convert (row,col) to (x,y), scaling for new image
 xy1 = np.zeros(locs1.shape)
-xy1[:,0] = locs1[:,1]
-xy1[:,1] = locs1[:,0]
+xy1[:,0] = locs1[:,1]*hp_cover.shape[1]/cv_cover.shape[1]
+xy1[:,1] = locs1[:,0]*hp_cover.shape[0]/cv_cover.shape[0]
 xy2 = np.zeros(locs2.shape)
 xy2[:,0] = locs2[:,1]
 xy2[:,1] = locs2[:,0]
