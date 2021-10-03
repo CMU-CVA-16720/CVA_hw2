@@ -19,23 +19,21 @@ opts = get_opts()
 cv_cover = cv2.imread('../data/cv_cover.jpg')
 cv_desk = cv2.imread('../data/cv_desk.png')
 hp_cover = cv2.imread('../data/hp_cover.jpg')
-# cv_cover = cv_cover[::4,::4,:]
-# cv_desk = cv_desk[::4,::4,:]
-# hp_cover = hp_cover[::4,::4,:]
-# plt.imshow(cv_desk)
-# plt.show()
+hp_cover = hp_cover[:,:,[2,1,0]]
 
 # Match cv cover and cv desk
-# matches, locs1, locs2 = matchPics.matchPics(cv_cover, cv_desk, opts)
+matches, locs1, locs2 = matchPics.matchPics(cv_cover, cv_desk, opts)
 # np.savez_compressed('default_match.npz',
 #     matches=matches,
 #     locs1=locs1,
 #     locs2=locs2
 # )
-default_match = np.load('default_match.npz')
-locs1=default_match['locs1']
-locs2=default_match['locs2']
-matches=default_match['matches']
+# default_match = np.load('default_match.npz')
+# locs1=default_match['locs1']
+# locs2=default_match['locs2']
+# matches=default_match['matches']
+
+# Plot matches
 # plotMatches(cv_cover, cv_desk, matches, locs1, locs2)
 
 # convert (row,col) to (x,y), scaling for new image
