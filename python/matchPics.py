@@ -5,6 +5,8 @@ from helper import briefMatch, plotMatches
 from helper import computeBrief
 from helper import corner_detection
 
+from opts import get_opts
+
 def matchPics(I1, I2, opts):
     #I1, I2 : Images to match
     #opts: input opts
@@ -26,6 +28,18 @@ def matchPics(I1, I2, opts):
 
     #Match features using the descriptors
     matches = briefMatch(desc1, desc2, ratio)
-    print("# of matches: {}".format(matches.shape[0]))
 
     return matches, locs1, locs2
+
+if __name__ == "__main__":
+    # Get options
+    opts = get_opts()
+    # Get images
+    cv_cover = cv2.imread('../data/cv_cover.jpg')
+    cv_desk = cv2.imread('../data/cv_desk.png')
+    # Perform matches
+    matches, locs1, locs2 = matchPics(cv_cover, cv_desk, opts)
+    # Output results
+    print("# of matches: {}".format(matches.shape[0]))
+    plotMatches(cv_cover, cv_desk, matches, locs1, locs2)
+    
