@@ -10,16 +10,15 @@ opts = get_opts()
 #Q2.1.6
 #Read the image and convert to grayscale, if necessary
 original = cv2.imread('../data/cv_cover.jpg')
-original = original[::10,::10,:]
 results = np.zeros([36])
 lbls = []
 for i in range(36):
+    print('Progress: {}/{}'.format(i, 35))
     #Rotate Image
     rotated = rotate(original,i*10)
-#    plt.imshow(rotated)
-#    plt.show()
     #Compute features, descriptors and Match features
     matches, locs1, locs2 = matchPics(original, rotated, opts)
+    print('Matches: {}'.format(matches.shape[0]))
     #Update histogram
     results[i] = matches.shape[0]
     lbls.append(10*i)
