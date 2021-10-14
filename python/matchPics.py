@@ -6,6 +6,7 @@ from helper import computeBrief
 from helper import corner_detection
 
 from opts import get_opts
+import matplotlib.pyplot as plt
 
 def matchPics(I1, I2, opts):
     #I1, I2 : Images to match
@@ -17,6 +18,9 @@ def matchPics(I1, I2, opts):
     togray = lambda img: 0.2989*img[:,:,0] + 0.5870*img[:,:,1] + 0.1140*img[:,:,2]
     I1g = togray(I1)
     I2g = togray(I2)
+    # I1g = np.round(togray(I1)).astype('uint8')
+    # I2g = np.round(togray(I2)).astype('uint8')
+    
     
     #Detect Features in Both Images
     locs1 = corner_detection(I1g,sigma)
